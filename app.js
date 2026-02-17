@@ -6,8 +6,14 @@
 const STORAGE_KEYS = {
     PREDICTIONS: 'baseball_predictions',
     USER_SCORE: 'baseball_user_score',
-    USERNAME: 'baseball_username'
+    USERNAME: 'baseball_username',
+    AUTH_SESSION: 'baseball_auth_session',
+    DEADLINES: 'baseball_deadlines'
 };
+
+// パスワード
+const APP_PASSWORD = 'baseball2026';
+const ADMIN_PASSWORD = 'admin2026';
 
 // モック試合データ - WBC日本vs台湾
 const mockGames = [
@@ -46,11 +52,23 @@ let currentGameId = null;
 let userPredictions = {};
 let userScore = 0;
 let username = 'ゲスト';
+let gameDeadlines = {}; // 試合ごとの締め切り時間
 
 // ========================================
 // 初期化
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 認証チェック
+    if (!checkAuthentication()) {
+        showAuthScreen();
+        return;
+    }
+
+    // 認証済みの場合は通常の初期化
+    initializeApp();
+});
+
+function initializeApp() {
     loadUserData();
     initTabs();
     renderGames();
@@ -58,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMyPredictions();
     initModal();
     initUsernameModal();
+    initAdminModal();
     updateUserDisplay();
 
     // 初回訪問時にユーザー名入力を促す
@@ -66,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openUsernameModal();
         }, 500);
     }
-});
+}
 
 // ========================================
 // ユーザーデータの読み込み・保存
@@ -75,6 +94,7 @@ function loadUserData() {
     const savedPredictions = localStorage.getItem(STORAGE_KEYS.PREDICTIONS);
     const savedScore = localStorage.getItem(STORAGE_KEYS.USER_SCORE);
     const savedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
+    const savedDeadlines = localStorage.getItem(STORAGE_KEYS.DEADLINES);
 
     if (savedPredictions) {
         userPredictions = JSON.parse(savedPredictions);
@@ -85,12 +105,16 @@ function loadUserData() {
     if (savedUsername) {
         username = savedUsername;
     }
+    if (savedDeadlines) {
+        gameDeadlines = JSON.parse(savedDeadlines);
+    }
 }
 
 function saveUserData() {
     localStorage.setItem(STORAGE_KEYS.PREDICTIONS, JSON.stringify(userPredictions));
     localStorage.setItem(STORAGE_KEYS.USER_SCORE, userScore.toString());
     localStorage.setItem(STORAGE_KEYS.USERNAME, username);
+    localStorage.setItem(STORAGE_KEYS.DEADLINES, JSON.stringify(gameDeadlines));
 }
 
 function updateUserDisplay() {
@@ -144,15 +168,18 @@ function createGameCard(game) {
     const card = document.createElement('div');
     card.className = `game-card ${game.status}`;
 
-    const startTime = new Date(game.startTime);
+    // 締め切り時間を取得（カスタム設定があればそれを使用、なければ試合開始時間）
+    const deadlineTime = gameDeadlines[game.id]
+        ? new Date(gameDeadlines[game.id])
+        : new Date(game.startTime);
     const now = new Date();
-    const isOpen = startTime > now;
+    const isOpen = deadlineTime > now;
     const hasPrediction = userPredictions[game.id] !== undefined;
 
     card.innerHTML = `
         ${game.tournament ? `<div class="tournament-badge">${game.tournament}</div>` : ''}
         <div class="game-time">
-            <span class="game-date">${formatDateTime(startTime)}</span>
+            <span class="game-date">${formatDateTime(new Date(game.startTime))}</span>
             <span class="game-status ${isOpen ? 'open' : 'closed'}">
                 ${isOpen ? '受付中' : '締切'}
             </span>
@@ -520,4 +547,180 @@ function formatTime(date) {
     const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
+}
+
+// ========================================
+// 認証機能
+// ========================================
+function checkAuthentication() {
+    const session = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+    return session === 'authenticated';
+}
+
+function showAuthScreen() {
+    const authScreen = document.getElementById('authScreen');
+    const authPassword = document.getElementById('authPassword');
+    const authSubmit = document.getElementById('authSubmit');
+    const authError = document.getElementById('authError');
+
+    authScreen.style.display = 'flex';
+
+    // Enterキーで送信
+    authPassword.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            verifyPassword();
+        }
+    });
+
+    // ボタンクリックで送信
+    authSubmit.addEventListener('click', verifyPassword);
+
+    function verifyPassword() {
+        const password = authPassword.value;
+
+        if (password === APP_PASSWORD) {
+            // 認証成功
+            localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, 'authenticated');
+            authScreen.style.display = 'none';
+            initializeApp();
+        } else {
+            // 認証失敗
+            authError.textContent = 'パスワードが正しくありません';
+            authError.style.display = 'block';
+            authPassword.value = '';
+            authPassword.focus();
+        }
+    }
+
+    // 初期フォーカス
+    setTimeout(() => {
+        authPassword.focus();
+    }, 100);
+}
+
+// ========================================
+// 管理画面機能
+// ========================================
+function initAdminModal() {
+    const adminBtn = document.getElementById('adminBtn');
+    const adminPasswordModal = document.getElementById('adminPasswordModal');
+    const adminPasswordOverlay = document.getElementById('adminPasswordOverlay');
+    const adminPasswordClose = document.getElementById('adminPasswordClose');
+    const adminPasswordCancel = document.getElementById('adminPasswordCancel');
+    const adminPasswordSubmit = document.getElementById('adminPasswordSubmit');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const adminPasswordError = document.getElementById('adminPasswordError');
+
+    const adminModal = document.getElementById('adminModal');
+    const adminModalOverlay = document.getElementById('adminModalOverlay');
+    const adminModalClose = document.getElementById('adminModalClose');
+    const adminModalSave = document.getElementById('adminModalSave');
+
+    // 管理ボタンクリック
+    adminBtn.addEventListener('click', () => {
+        adminPasswordModal.classList.add('active');
+        setTimeout(() => {
+            adminPasswordInput.focus();
+        }, 100);
+    });
+
+    // パスワードモーダルを閉じる
+    const closePasswordModal = () => {
+        adminPasswordModal.classList.remove('active');
+        adminPasswordInput.value = '';
+        adminPasswordError.textContent = '';
+    };
+
+    adminPasswordOverlay.addEventListener('click', closePasswordModal);
+    adminPasswordClose.addEventListener('click', closePasswordModal);
+    adminPasswordCancel.addEventListener('click', closePasswordModal);
+
+    // Enterキーで送信
+    adminPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            verifyAdminPassword();
+        }
+    });
+
+    // パスワード確認
+    adminPasswordSubmit.addEventListener('click', verifyAdminPassword);
+
+    function verifyAdminPassword() {
+        const password = adminPasswordInput.value;
+
+        if (password === ADMIN_PASSWORD) {
+            // 認証成功
+            closePasswordModal();
+            openAdminModal();
+        } else {
+            // 認証失敗
+            adminPasswordError.textContent = '管理者パスワードが正しくありません';
+            adminPasswordInput.value = '';
+            adminPasswordInput.focus();
+        }
+    }
+
+    // 管理画面を開く
+    function openAdminModal() {
+        renderAdminGames();
+        adminModal.classList.add('active');
+    }
+
+    // 管理画面を閉じる
+    const closeAdminModal = () => {
+        adminModal.classList.remove('active');
+    };
+
+    adminModalOverlay.addEventListener('click', closeAdminModal);
+    adminModalClose.addEventListener('click', closeAdminModal);
+
+    // 保存して閉じる
+    adminModalSave.addEventListener('click', () => {
+        saveDeadlines();
+        closeAdminModal();
+        renderGames(); // 試合一覧を再描画
+    });
+}
+
+function renderAdminGames() {
+    const adminGamesList = document.getElementById('adminGamesList');
+    adminGamesList.innerHTML = '';
+
+    mockGames.forEach(game => {
+        const gameItem = document.createElement('div');
+        gameItem.className = 'admin-game-item';
+
+        // 現在の締め切り時間を取得
+        const currentDeadline = gameDeadlines[game.id]
+            ? new Date(gameDeadlines[game.id]).toISOString().slice(0, 16)
+            : new Date(game.startTime).toISOString().slice(0, 16);
+
+        gameItem.innerHTML = `
+            <div class="admin-game-info">
+                <div class="admin-game-title">${game.homeTeam} vs ${game.awayTeam}</div>
+                <div class="admin-game-subtitle">試合開始: ${formatDateTime(new Date(game.startTime))}</div>
+            </div>
+            <div class="admin-game-deadline">
+                <label for="deadline-${game.id}">締め切り時間:</label>
+                <input 
+                    type="datetime-local" 
+                    id="deadline-${game.id}" 
+                    value="${currentDeadline}"
+                    class="deadline-input"
+                />
+            </div>
+        `;
+
+        adminGamesList.appendChild(gameItem);
+    });
+}
+
+function saveDeadlines() {
+    mockGames.forEach(game => {
+        const input = document.getElementById(`deadline-${game.id}`);
+        if (input && input.value) {
+            gameDeadlines[game.id] = new Date(input.value).toISOString();
+        }
+    });
+    saveUserData();
 }

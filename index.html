@@ -12,6 +12,18 @@
 </head>
 
 <body>
+    <!-- パスワード認証画面 -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">⚾ Baseball Oracle</div>
+            <h2 class="auth-title">パスワードを入力してください</h2>
+            <p class="auth-description">アプリにアクセスするにはパスワードが必要です</p>
+            <input type="password" id="authPassword" class="auth-input" placeholder="パスワード" />
+            <button class="btn btn-primary" id="authSubmit">ログイン</button>
+            <p class="auth-error" id="authError"></p>
+        </div>
+    </div>
+
     <!-- ヘッダー -->
     <header class="header">
         <div class="container">
@@ -21,6 +33,7 @@
                     <span id="username">ゲスト</span>
                 </button>
                 <span class="user-score" id="userScore">0pt</span>
+                <button class="admin-btn" id="adminBtn" title="管理画面">⚙️</button>
             </div>
         </div>
     </header>
@@ -125,6 +138,48 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" id="usernameSubmit">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理者パスワード入力モーダル -->
+    <div class="modal" id="adminPasswordModal">
+        <div class="modal-overlay" id="adminPasswordOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">管理者パスワード</h2>
+                <button class="modal-close" id="adminPasswordClose">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                    管理画面にアクセスするには管理者パスワードが必要です
+                </p>
+                <input type="password" id="adminPasswordInput" class="username-input" placeholder="管理者パスワード" />
+                <p class="auth-error" id="adminPasswordError"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="adminPasswordCancel">キャンセル</button>
+                <button class="btn btn-primary" id="adminPasswordSubmit">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理画面モーダル -->
+    <div class="modal" id="adminModal">
+        <div class="modal-overlay" id="adminModalOverlay"></div>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙️ 管理画面</h2>
+                <button class="modal-close" id="adminModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 1rem; color: var(--text-secondary);">試合の締め切り時間設定</h3>
+                <div id="adminGamesList" class="admin-games-list">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="adminModalSave">保存して閉じる</button>
             </div>
         </div>
     </div>
