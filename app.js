@@ -58,13 +58,6 @@ let gameDeadlines = {}; // 試合ごとの締め切り時間
 // 初期化
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 認証チェック
-    if (!checkAuthentication()) {
-        showAuthScreen();
-        return;
-    }
-
-    // 認証済みの場合は通常の初期化
     initializeApp();
 });
 
@@ -547,55 +540,6 @@ function formatTime(date) {
     const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
-}
-
-// ========================================
-// 認証機能
-// ========================================
-function checkAuthentication() {
-    const session = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
-    return session === 'authenticated';
-}
-
-function showAuthScreen() {
-    const authScreen = document.getElementById('authScreen');
-    const authPassword = document.getElementById('authPassword');
-    const authSubmit = document.getElementById('authSubmit');
-    const authError = document.getElementById('authError');
-
-    authScreen.style.display = 'flex';
-
-    // Enterキーで送信
-    authPassword.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            verifyPassword();
-        }
-    });
-
-    // ボタンクリックで送信
-    authSubmit.addEventListener('click', verifyPassword);
-
-    function verifyPassword() {
-        const password = authPassword.value;
-
-        if (password === APP_PASSWORD) {
-            // 認証成功
-            localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, 'authenticated');
-            authScreen.style.display = 'none';
-            initializeApp();
-        } else {
-            // 認証失敗
-            authError.textContent = 'パスワードが正しくありません';
-            authError.style.display = 'block';
-            authPassword.value = '';
-            authPassword.focus();
-        }
-    }
-
-    // 初期フォーカス
-    setTimeout(() => {
-        authPassword.focus();
-    }, 100);
 }
 
 // ========================================
