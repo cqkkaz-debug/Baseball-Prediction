@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball Oracle - 野球予想ゲーム</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">⚾ Baseball Oracle</h1>
+            <div class="user-info">
+                <button class="username-btn" id="usernameBtn">
+                    <span id="username">ゲスト</span>
+                </button>
+                <span class="user-score" id="userScore">0pt</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+        <div class="container">
+            <!-- タブ切り替え -->
+            <div class="tabs">
+                <button class="tab active" data-tab="games">今日の試合</button>
+                <button class="tab" data-tab="predictors">予想者一覧</button>
+                <button class="tab" data-tab="mypredictions">マイ予想</button>
+            </div>
+
+            <!-- 試合一覧タブ -->
+            <div class="tab-content active" id="games-content">
+                <div class="games-grid" id="gamesGrid">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <!-- 予想者一覧タブ -->
+            <div class="tab-content" id="predictors-content">
+                <div class="predictors-list" id="predictorsList">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+            </div>
+
+            <!-- マイ予想タブ -->
+            <div class="tab-content" id="mypredictions-content">
+                <div class="my-predictions" id="myPredictions">
+                    <p class="empty-state">まだ予想がありません</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 予想入力モーダル -->
+    <div class="modal" id="predictionModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">予想を入力</h2>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="game-info" id="modalGameInfo">
+                    <!-- 試合情報 -->
+                </div>
+
+                <div class="prediction-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">5回裏終了時のスコア</h3>
+                        <div class="score-input-group">
+                            <div class="score-input">
+                                <label id="homeTeam5th">ホーム</label>
+                                <input type="number" id="home5th" min="0" max="99" value="0">
+                            </div>
+                            <span class="score-separator">-</span>
+                            <div class="score-input">
+                                <label id="awayTeam5th">アウェイ</label>
+                                <input type="number" id="away5th" min="0" max="99" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">試合終了時のスコア</h3>
+                        <div class="score-input-group">
+                            <div class="score-input">
+                                <label id="homeTeamFinal">ホーム</label>
+                                <input type="number" id="homeFinal" min="0" max="99" value="0">
+                            </div>
+                            <span class="score-separator">-</span>
+                            <div class="score-input">
+                                <label id="awayTeamFinal">アウェイ</label>
+                                <input type="number" id="awayFinal" min="0" max="99" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancel">キャンセル</button>
+                <button class="btn btn-primary" id="modalSubmit">予想を送信</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ユーザー名入力モーダル -->
+    <div class="modal" id="usernameModal">
+        <div class="modal-overlay" id="usernameModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">ユーザー名を入力</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                    予想を投稿するためのニックネームを入力してください
+                </p>
+                <input type="text" id="usernameInput" class="username-input" placeholder="例: 野球ファン太郎" maxlength="20" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="usernameSubmit">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
