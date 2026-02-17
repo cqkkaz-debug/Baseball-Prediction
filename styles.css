@@ -135,6 +135,36 @@ body {
     padding: 2rem 0;
 }
 
+/* 説明バナー */
+.info-banner {
+    background: var(--glass-white);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--neon-green);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--neon-green);
+    margin-bottom: 0.75rem;
+}
+
+.info-description {
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.info-description strong {
+    color: var(--neon-yellow);
+    font-weight: 700;
+}
+
 /* タブ */
 .tabs {
     display: flex;

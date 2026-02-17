@@ -13,7 +13,7 @@ const STORAGE_KEYS = {
 
 // パスワード
 const APP_PASSWORD = 'baseball2026';
-const ADMIN_PASSWORD = 'admin2026';
+const ADMIN_PASSWORD = '4185';
 
 // モック試合データ - WBC日本vs台湾
 const mockGames = [
