@@ -27,7 +27,9 @@ const mockGames = [
     {
         id: 1,
         homeTeam: '🇯🇵 日本',
+        homeFlag: '🇯🇵',
         awayTeam: '🇹🇼 台湾',
+        awayFlag: '🇹🇼',
         tournament: 'WBC 2026',
         startTime: '2026-03-06T18:30:00',
         status: 'open',
@@ -456,9 +458,11 @@ function openPredictionModal(game) {
         </div>
     `;
 
-    // チーム名設定
-    document.getElementById('homeTeam5th').textContent = game.homeTeam;
-    document.getElementById('awayTeam5th').textContent = game.awayTeam;
+    // チーム名と国旗設定
+    document.getElementById('homeTeam5th').textContent = game.homeTeam.replace(/[^a-zA-Z\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '').trim(); // 絵文字などを除去して純粋なチーム名を表示
+    document.getElementById('awayTeam5th').textContent = game.awayTeam.replace(/[^a-zA-Z\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '').trim();
+    document.getElementById('homeFlag').textContent = game.homeFlag || '⚾';
+    document.getElementById('awayFlag').textContent = game.awayFlag || '⚾';
 
     // 既存の予想があれば設定
     const existingPrediction = userPredictions[game.id];
