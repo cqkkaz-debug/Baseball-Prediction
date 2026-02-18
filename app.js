@@ -8,7 +8,8 @@ const STORAGE_KEYS = {
     USER_SCORE: 'baseball_user_score',
     USERNAME: 'baseball_username',
     AUTH_SESSION: 'baseball_auth_session',
-    DEADLINES: 'baseball_deadlines'
+    DEADLINES: 'baseball_deadlines',
+    ALL_PREDICTIONS: 'baseball_all_predictions'  // 全ユーザー共有の予想リスト
 };
 
 // パスワード
@@ -246,36 +247,49 @@ function renderRanking() {
 // ========================================
 // 予想者一覧の描画
 // ========================================
+
+// 全ユーザー共有リストに予想を保存
+function saveToAllPredictions(gameId, prediction) {
+    const allPredictionsRaw = localStorage.getItem(STORAGE_KEYS.ALL_PREDICTIONS);
+    const allPredictions = allPredictionsRaw ? JSON.parse(allPredictionsRaw) : {};
+
+    // ゲームIDごとに、ユーザー名をキーとして保存（上書き）
+    if (!allPredictions[gameId]) {
+        allPredictions[gameId] = {};
+    }
+    allPredictions[gameId][username] = {
+        username: username,
+        home5th: prediction.home5th,
+        away5th: prediction.away5th,
+        homeFinal: prediction.homeFinal,
+        awayFinal: prediction.awayFinal,
+        timestamp: prediction.timestamp
+    };
+
+    localStorage.setItem(STORAGE_KEYS.ALL_PREDICTIONS, JSON.stringify(allPredictions));
+}
+
 function renderPredictors() {
     const predictorsList = document.getElementById('predictorsList');
     predictorsList.innerHTML = '';
 
-    // ユーザーの予想も含める
-    const allPredictors = [...mockPredictors];
+    // 全ユーザー共有リストから読み込む
+    const allPredictionsRaw = localStorage.getItem(STORAGE_KEYS.ALL_PREDICTIONS);
+    const allPredictions = allPredictionsRaw ? JSON.parse(allPredictionsRaw) : {};
 
-    // ユーザーが予想している場合は追加
-    if (userPredictions[1]) {
-        const userPrediction = userPredictions[1];
-        allPredictors.push({
-            username: username,
-            home5th: userPrediction.home5th,
-            away5th: userPrediction.away5th,
-            homeFinal: userPrediction.homeFinal,
-            awayFinal: userPrediction.awayFinal,
-            timestamp: userPrediction.timestamp
-        });
-    }
+    // 試合ID=1の予想者一覧を取得
+    const gamePredictions = allPredictions[1] ? Object.values(allPredictions[1]) : [];
 
     // 予想者がいない場合
-    if (allPredictors.length === 0) {
+    if (gamePredictions.length === 0) {
         predictorsList.innerHTML = '<p class="empty-state">まだ予想がありません</p>';
         return;
     }
 
     // タイムスタンプでソート（新しい順）
-    allPredictors.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    gamePredictions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-    allPredictors.forEach((predictor, index) => {
+    gamePredictions.forEach((predictor, index) => {
         const predictorCard = document.createElement('div');
         predictorCard.className = 'predictor-card';
 
@@ -449,6 +463,10 @@ function submitPrediction() {
 
     userPredictions[currentGameId] = prediction;
     saveUserData();
+
+    // 全ユーザー共有リストにも保存
+    saveToAllPredictions(currentGameId, prediction);
+
     updateUserDisplay();
 
     // モーダルを閉じる
