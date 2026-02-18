@@ -352,21 +352,13 @@ async function renderPredictors() {
                 <div class="predictor-name ${isCurrentUser ? 'current-user' : ''}">${predictor.username}</div>
                 <div class="predictor-time">${formatTime(new Date(predictor.timestamp))}</div>
             </div>
-            <div class="predictor-predictions">
+            <div class="predictor-predictions" style="grid-template-columns: 1fr;">
                 <div class="predictor-prediction">
                     <div class="prediction-label">5回裏終了</div>
                     <div class="prediction-score">
                         <span class="score-value">${predictor.home5th}</span>
                         <span class="score-separator">-</span>
                         <span class="score-value">${predictor.away5th}</span>
-                    </div>
-                </div>
-                <div class="predictor-prediction">
-                    <div class="prediction-label">試合終了</div>
-                    <div class="prediction-score">
-                        <span class="score-value">${predictor.homeFinal}</span>
-                        <span class="score-separator">-</span>
-                        <span class="score-value">${predictor.awayFinal}</span>
                     </div>
                 </div>
             </div>
@@ -410,11 +402,8 @@ function renderMyPredictions() {
                 </div>
             </div>
             <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                <div style="margin-bottom: 0.5rem;">
-                    <strong>5回裏終了:</strong> ${prediction.home5th} - ${prediction.away5th}
-                </div>
-                <div>
-                    <strong>試合終了:</strong> ${prediction.homeFinal} - ${prediction.awayFinal}
+                <div style="text-align: center;">
+                    <strong>5回裏終了:</strong> <span class="score-value" style="font-size: 1.5rem;">${prediction.home5th} - ${prediction.away5th}</span>
                 </div>
             </div>
         `;
@@ -470,21 +459,15 @@ function openPredictionModal(game) {
     // チーム名設定
     document.getElementById('homeTeam5th').textContent = game.homeTeam;
     document.getElementById('awayTeam5th').textContent = game.awayTeam;
-    document.getElementById('homeTeamFinal').textContent = game.homeTeam;
-    document.getElementById('awayTeamFinal').textContent = game.awayTeam;
 
     // 既存の予想があれば設定
     const existingPrediction = userPredictions[game.id];
     if (existingPrediction) {
         document.getElementById('home5th').value = existingPrediction.home5th;
         document.getElementById('away5th').value = existingPrediction.away5th;
-        document.getElementById('homeFinal').value = existingPrediction.homeFinal;
-        document.getElementById('awayFinal').value = existingPrediction.awayFinal;
     } else {
         document.getElementById('home5th').value = 0;
         document.getElementById('away5th').value = 0;
-        document.getElementById('homeFinal').value = 0;
-        document.getElementById('awayFinal').value = 0;
     }
 
     modal.classList.add('active');
@@ -496,14 +479,14 @@ function submitPrediction() {
     const prediction = {
         home5th: parseInt(document.getElementById('home5th').value),
         away5th: parseInt(document.getElementById('away5th').value),
-        homeFinal: parseInt(document.getElementById('homeFinal').value),
-        awayFinal: parseInt(document.getElementById('awayFinal').value),
+        homeFinal: 0, // 未使用だが互換性のため0を設定
+        awayFinal: 0, // 未使用だが互換性のため0を設定
         timestamp: new Date().toISOString()
     };
 
-    // バリデーション
-    if (prediction.homeFinal < prediction.home5th || prediction.awayFinal < prediction.away5th) {
-        alert('最終スコアは5回裏終了時のスコア以上にしてください');
+    // バリデーション（スコアが負でないか）
+    if (prediction.home5th < 0 || prediction.away5th < 0) {
+        alert('スコアは0以上にしてください');
         return;
     }
 

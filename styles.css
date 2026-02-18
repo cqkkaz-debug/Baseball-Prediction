@@ -415,7 +415,8 @@ body {
 
 .predictor-predictions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* grid-template-columns: 1fr 1fr; 1カラムに変更 */
+    grid-template-columns: 1fr;
     gap: 1rem;
 }
 

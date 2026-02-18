@@ -41,48 +41,63 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify(predictions))
         .setMimeType(ContentService.MimeType.JSON);
 }
-
+// 予想データを保存するAPI (POST)
 function doPost(e) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // デバッグ用: 受け取ったデータそのものを記録してみる（動作確認用）
+    // sheet.appendRow(['DEBUG', new Date(), JSON.stringify(e)]);
+
     try {
-        const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-        const params = JSON.parse(e.postData.contents);
+        // データが postData.contents に入っている場合と、parameter に入っている場合の両方に対応
+        let params;
+        if (e.postData && e.postData.contents) {
+            params = JSON.parse(e.postData.contents);
+        } else if (e.parameter && e.parameter.data) {
+            params = JSON.parse(e.parameter.data);
+        } else {
+            throw new Error('No data received');
+        }
 
         const gameId = params.gameId;
         const username = params.username;
-        const prediction = params.prediction;
+        const p = params.prediction;
 
-        // 既存のデータを確認して更新（同じユーザーの同じ試合の予想があれば上書き）
+        // 必須チェック
+        if (!gameId || !username || !p) {
+            throw new Error(`Missing required fields: gameId=${gameId}, username=${username}`);
+        }
+
+        // 同じユーザーのデータを更新 (上書き)
         const data = sheet.getDataRange().getValues();
-        let rowUpdated = false;
+        let updated = false;
 
         for (let i = 1; i < data.length; i++) {
             if (data[i][1] == gameId && data[i][2] == username) {
-                // 更新: [timestamp, gameId, username, home5th, away5th, homeFinal, awayFinal]
-                const range = sheet.getRange(i + 1, 1, 1, 7);
-                range.setValues([[
+                sheet.getRange(i + 1, 1, 1, 7).setValues([[
                     new Date().toISOString(),
                     gameId,
                     username,
-                    prediction.home5th,
-                    prediction.away5th,
-                    prediction.homeFinal,
-                    prediction.awayFinal
+                    p.home5th,
+                    p.away5th,
+                    p.homeFinal,
+                    p.awayFinal
                 ]]);
-                rowUpdated = true;
+                updated = true;
                 break;
             }
         }
 
         // 新規追加
-        if (!rowUpdated) {
+        if (!updated) {
             sheet.appendRow([
                 new Date().toISOString(),
                 gameId,
                 username,
-                prediction.home5th,
-                prediction.away5th,
-                prediction.homeFinal,
-                prediction.awayFinal
+                p.home5th,
+                p.away5th,
+                p.homeFinal,
+                p.awayFinal
             ]);
         }
 
@@ -90,6 +105,9 @@ function doPost(e) {
             .setMimeType(ContentService.MimeType.JSON);
 
     } catch (error) {
+        // エラー内容をシートに記録して原因を特定しやすくする
+        sheet.appendRow(['ERROR', new Date(), error.toString()]);
+
         return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
             .setMimeType(ContentService.MimeType.JSON);
     }

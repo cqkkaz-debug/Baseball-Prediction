@@ -41,8 +41,8 @@
                 <div class="info-banner">
                     <h3 class="info-title">📊 予想方法</h3>
                     <p class="info-description">
-                        <strong>5回裏終了時</strong>と<strong>試合終了時</strong>のスコアを予想してください。<br>
-                        5回裏終了時のスコアは、試合の中盤での両チームの得点状況を予想するものです。<br>
+                        <strong>5回裏終了時</strong>のスコアを予想してください。<br>
+                        試合の中盤での両チームの得点状況を予想するものです。<br>
                         より正確な予想をして、上位ランキングを目指しましょう！
                     </p>
                 </div>
@@ -80,34 +80,18 @@
                     <!-- 試合情報 -->
                 </div>
 
-                <div class="prediction-form">
-                    <div class="form-section">
-                        <h3 class="form-section-title">5回裏終了時のスコア</h3>
-                        <div class="score-input-group">
-                            <div class="score-input">
-                                <label id="homeTeam5th">ホーム</label>
-                                <input type="number" id="home5th" min="0" max="99" value="0">
-                            </div>
-                            <span class="score-separator">-</span>
-                            <div class="score-input">
-                                <label id="awayTeam5th">アウェイ</label>
-                                <input type="number" id="away5th" min="0" max="99" value="0">
-                            </div>
+                <!-- 5回裏終了時のスコア -->
+                <div class="score-input-group">
+                    <label class="input-label">5回裏終了時のスコア</label>
+                    <div class="score-inputs">
+                        <div class="team-input">
+                            <label class="team-label" id="homeTeam5th">Team A</label>
+                            <input type="number" id="home5th" class="score-input" min="0" value="0">
                         </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3 class="form-section-title">試合終了時のスコア</h3>
-                        <div class="score-input-group">
-                            <div class="score-input">
-                                <label id="homeTeamFinal">ホーム</label>
-                                <input type="number" id="homeFinal" min="0" max="99" value="0">
-                            </div>
-                            <span class="score-separator">-</span>
-                            <div class="score-input">
-                                <label id="awayTeamFinal">アウェイ</label>
-                                <input type="number" id="awayFinal" min="0" max="99" value="0">
-                            </div>
+                        <span class="vs-span">-</span>
+                        <div class="team-input">
+                            <label class="team-label" id="awayTeam5th">Team B</label>
+                            <input type="number" id="away5th" class="score-input" min="0" value="0">
                         </div>
                     </div>
                 </div>
