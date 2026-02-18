@@ -19,6 +19,9 @@ const ADMIN_PASSWORD = '4185';
 // デフォルト締め切り日時（2026年3月6日18:30）
 const DEFAULT_DEADLINE = '2026-03-06T18:30:00';
 
+// GAS連携設定（API_SETUP.mdの手順に従ってURLを設定してください）
+const API_URL = 'https://script.google.com/macros/s/AKfycbwGH-2v2mltBUkO21NmBIYPgmvyhigZsRopANdYPex99QMv_2r3xnKMial19uJJeYPg/exec';
+
 // モック試合データ - WBC日本vs台湾
 const mockGames = [
     {
@@ -248,6 +251,47 @@ function renderRanking() {
 // 予想者一覧の描画
 // ========================================
 
+// APIから予想データを取得
+async function fetchPredictions() {
+    if (!API_URL) return null; // API未設定時はスキップ
+
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+
+        // 取得したデータをLocalStorageにも保存（キャッシュ）
+        localStorage.setItem(STORAGE_KEYS.ALL_PREDICTIONS, JSON.stringify(data));
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch predictions:', error);
+        return null; // エラー時はLocalStorageのデータを使用
+    }
+}
+
+// APIに予想データを保存
+async function savePredictionToAPI(gameId, prediction) {
+    if (!API_URL) return; // API未設定時はスキップ
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // GASへのPOSTはno-corsが必要
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                gameId: gameId,
+                username: username,
+                prediction: prediction
+            })
+        });
+    } catch (error) {
+        console.error('Failed to save prediction to API:', error);
+        alert('ネットワークエラーにより、サーバーへの保存に失敗しました。ローカルには保存されました。');
+    }
+}
+
 // 全ユーザー共有リストに予想を保存
 function saveToAllPredictions(gameId, prediction) {
     const allPredictionsRaw = localStorage.getItem(STORAGE_KEYS.ALL_PREDICTIONS);
@@ -267,13 +311,20 @@ function saveToAllPredictions(gameId, prediction) {
     };
 
     localStorage.setItem(STORAGE_KEYS.ALL_PREDICTIONS, JSON.stringify(allPredictions));
+
+    // APIにも保存（非同期）
+    savePredictionToAPI(gameId, prediction);
 }
 
-function renderPredictors() {
+async function renderPredictors() {
     const predictorsList = document.getElementById('predictorsList');
+
+    // APIから最新データを取得
+    await fetchPredictions();
+
     predictorsList.innerHTML = '';
 
-    // 全ユーザー共有リストから読み込む
+    // 全ユーザー共有リストから読み込む（fetchPredictionsでlocalStorageが更新されているはず）
     const allPredictionsRaw = localStorage.getItem(STORAGE_KEYS.ALL_PREDICTIONS);
     const allPredictions = allPredictionsRaw ? JSON.parse(allPredictionsRaw) : {};
 
