@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API接続テスト</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .log {
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API接続テスト</h1>
+    <p>以下のボタンを押して、APIとの通信テストを行ってください。</p>
+
+    <button id="testBtn">テスト開始</button>
+
+    <div id="log" class="log">ログがここに表示されます...</div>
+
+    <script>
+        // 設定されたAPI_URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwGH-2v2mltBUkO21NmBIYPgmvyhigZsRopANdYPex99QMv_2r3xnKMial19uJJeYPg/exec';
+
+        const logDiv = document.getElementById('log');
+        const btn = document.getElementById('testBtn');
+
+        function log(msg, type = 'info') {
+            const el = document.createElement('div');
+            el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            if (type === 'error') el.className = 'error';
+            if (type === 'success') el.className = 'success';
+            logDiv.appendChild(el);
+            console.log(msg);
+        }
+
+        btn.addEventListener('click', async () => {
+            logDiv.innerHTML = '';
+            log('テスト開始...');
+
+            // 1. GETテスト（データ取得）
+            try {
+                log('GETリクエスト送信中...');
+                const response = await fetch(API_URL);
+                log(`Response Status: ${response.status}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                log('GET成功！データの取得ができました。', 'success');
+                log('取得データ: ' + JSON.stringify(data, null, 2));
+
+            } catch (error) {
+                log('GET失敗: ' + error.message, 'error');
+                log('考えられる原因: URL間違い、デプロイ時の権限設定ミス（「全員」になっていない）', 'error');
+            }
+
+            // 2. POSTテスト（データ送信）
+            try {
+                log('\nPOSTリクエスト送信中...');
+                const testData = {
+                    gameId: 999, // テスト用ID
+                    username: 'TEST_USER',
+                    prediction: {
+                        home5th: 0, away5th: 0, homeFinal: 0, awayFinal: 0, timestamp: new Date().toISOString()
+                    }
+                };
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                log('POSTリクエスト送信完了（no-corsモードなのでレスポンス詳細は不明）', 'success');
+                log('スプレッドシートを確認して、「TEST_USER」のデータが追加されているか確認してください。');
+
+            } catch (error) {
+                log('POST失敗: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>
