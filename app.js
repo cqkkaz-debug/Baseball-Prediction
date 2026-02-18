@@ -15,6 +15,9 @@ const STORAGE_KEYS = {
 const APP_PASSWORD = 'baseball2026';
 const ADMIN_PASSWORD = '4185';
 
+// デフォルト締め切り日時（2026年3月6日18:30）
+const DEFAULT_DEADLINE = '2026-03-06T18:30:00';
+
 // モック試合データ - WBC日本vs台湾
 const mockGames = [
     {
@@ -22,7 +25,7 @@ const mockGames = [
         homeTeam: '🇯🇵 日本',
         awayTeam: '🇹🇼 台湾',
         tournament: 'WBC 2026',
-        startTime: '2026-02-17T19:00:00',
+        startTime: '2026-03-06T18:30:00',
         status: 'open',
         predictions: 1247
     }
@@ -161,10 +164,10 @@ function createGameCard(game) {
     const card = document.createElement('div');
     card.className = `game-card ${game.status}`;
 
-    // 締め切り時間を取得（カスタム設定があればそれを使用、なければ試合開始時間）
+    // 締め切り時間を取得（カスタム設定があればそれを使用、なければデフォルト締め切り日時）
     const deadlineTime = gameDeadlines[game.id]
         ? new Date(gameDeadlines[game.id])
-        : new Date(game.startTime);
+        : new Date(DEFAULT_DEADLINE);
     const now = new Date();
     const isOpen = deadlineTime > now;
     const hasPrediction = userPredictions[game.id] !== undefined;
