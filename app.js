@@ -31,7 +31,7 @@ const mockGames = [
         awayTeam: '🇹🇼 台湾',
         awayFlag: '🇹🇼',
         tournament: 'WBC 2026',
-        startTime: '2026-03-06T18:30:00',
+        startTime: '2026-03-06T19:00:00',
         status: 'open',
         predictions: 1247
     }
