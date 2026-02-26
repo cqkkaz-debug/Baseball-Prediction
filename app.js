@@ -16,8 +16,8 @@ const STORAGE_KEYS = {
 const APP_PASSWORD = 'baseball2026';
 const ADMIN_PASSWORD = '4185';
 
-// デフォルト締め切り日時（2026年3月6日18:30）
-const DEFAULT_DEADLINE = '2026-03-06T18:30:00';
+// デフォルト締め切り日時（2026年3月6日19:00）
+const DEFAULT_DEADLINE = '2026-03-06T19:00:00';
 
 // GAS連携設定（API_SETUP.mdの手順に従ってURLを設定してください）
 const API_URL = 'https://script.google.com/macros/s/AKfycbwGH-2v2mltBUkO21NmBIYPgmvyhigZsRopANdYPex99QMv_2r3xnKMial19uJJeYPg/exec';

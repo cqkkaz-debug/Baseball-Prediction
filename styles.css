@@ -905,3 +905,126 @@ body {
     filter: invert(1);
     cursor: pointer;
 }
+
+/* ========================================
+   新・スコア入力コンテナ（スマホ最適化・超大型版）
+   ======================================== */
+.score-input-container {
+    display: flex;
+    justify-content: space-around;
+    /* 間隔を広げる */
+    align-items: center;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(20, 27, 45, 0.8) 100%);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2rem 1rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.team-input-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 40%;
+    position: relative;
+}
+
+/* 日本チームの装飾 */
+#homeFlag+.team-label-large {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(188, 0, 45, 0.8);
+    /* 日の丸の赤 */
+}
+
+/* 台湾チームの装飾 */
+#awayFlag+.team-label-large {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 56, 118, 0.8);
+    /* 台湾国旗の青 */
+}
+
+.team-flag {
+    font-size: 6rem;
+    /* 国旗サイズ倍増 */
+    line-height: 1;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.team-input-column:hover .team-flag {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.team-label-large {
+    font-size: 1.5rem;
+    /* ラベルサイズ拡大 */
+    font-weight: 900;
+    color: var(--text-primary);
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.score-input-large {
+    width: 100%;
+    max-width: 140px;
+    /* 幅拡大 */
+    height: 100px;
+    /* 高さ拡大 */
+    font-size: 4rem;
+    /* フォントサイズ倍増 */
+    font-weight: 900;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid var(--glass-border);
+    border-radius: 1rem;
+    color: var(--neon-yellow);
+    transition: all 0.3s ease;
+    /* 数字入力のスピンボタンを消す（スマホで見やすくするため） */
+    -moz-appearance: textfield;
+}
+
+.score-input-large::-webkit-outer-spin-button,
+.score-input-large::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.score-input-large:focus {
+    outline: none;
+    border-color: var(--neon-green);
+    box-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.vs-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 15%;
+}
+
+.vs-text {
+    font-size: 3rem;
+    /* VSテキスト拡大 */
+    font-weight: 900;
+    background: linear-gradient(to bottom, #fff, #999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.inning-text {
+    font-size: 1rem;
+    color: var(--neon-green);
+    font-weight: bold;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+    white-space: nowrap;
+}
