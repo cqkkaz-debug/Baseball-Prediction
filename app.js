@@ -693,23 +693,40 @@ function renderAdminGames() {
         const gameItem = document.createElement('div');
         gameItem.className = 'admin-game-item';
 
-        // 現在の締め切り時間を取得
+        // 現在の締め切り時間を取得（ローカル時間として扱う）
         const currentDeadline = gameDeadlines[game.id]
-            ? new Date(gameDeadlines[game.id]).toISOString().slice(0, 16)
-            : new Date(game.startTime).toISOString().slice(0, 16);
+            ? new Date(gameDeadlines[game.id])
+            : new Date(game.startTime);
+
+        const year = currentDeadline.getFullYear();
+        const month = String(currentDeadline.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDeadline.getDate()).padStart(2, '0');
+        const hours = String(currentDeadline.getHours()).padStart(2, '0');
+        const minutes = String(currentDeadline.getMinutes()).padStart(2, '0');
+
+        const dateValue = `${year}-${month}-${day}`;
+        const timeValue = `${hours}:${minutes}`;
 
         gameItem.innerHTML = `
             <div class="admin-game-info">
                 <div class="admin-game-title">${game.homeTeam} vs ${game.awayTeam}</div>
                 <div class="admin-game-subtitle">試合開始: ${formatDateTime(new Date(game.startTime))}</div>
             </div>
-            <div class="admin-game-deadline">
-                <label for="deadline-${game.id}">締め切り時間:</label>
+            <div class="admin-game-deadline" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                <label style="width: 100%; margin-bottom: 0.25rem;">締め切り時間:</label>
                 <input 
-                    type="datetime-local" 
-                    id="deadline-${game.id}" 
-                    value="${currentDeadline}"
+                    type="date" 
+                    id="deadline-date-${game.id}" 
+                    value="${dateValue}"
                     class="deadline-input"
+                    style="flex: 2; min-width: 120px;"
+                />
+                <input 
+                    type="time" 
+                    id="deadline-time-${game.id}" 
+                    value="${timeValue}"
+                    class="deadline-input"
+                    style="flex: 1; min-width: 80px;"
                 />
             </div>
         `;
@@ -720,9 +737,11 @@ function renderAdminGames() {
 
 function saveDeadlines() {
     mockGames.forEach(game => {
-        const input = document.getElementById(`deadline-${game.id}`);
-        if (input && input.value) {
-            gameDeadlines[game.id] = new Date(input.value).toISOString();
+        const dateInput = document.getElementById(`deadline-date-${game.id}`);
+        const timeInput = document.getElementById(`deadline-time-${game.id}`);
+        if (dateInput && timeInput && dateInput.value && timeInput.value) {
+            // ローカル時間のまま文字列として保存する（例: 2026-03-06T19:00:00）
+            gameDeadlines[game.id] = `${dateInput.value}T${timeInput.value}:00`;
         }
     });
     saveUserData();
